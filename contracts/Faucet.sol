@@ -10,8 +10,9 @@ contract Faucet {
         owner = _owner;
     }
 
-    function withdraw (address payable recepient) public {
-        require(msg.sender == owner);
-        recepient.transfer(0.005 ether);
+    function withdraw (address payable recepient, uint256 amount) external {
+        require(msg.sender == owner, "!owner");
+        require(amount <= 0.01 ether, "incorrect amount");
+        recepient.transfer(amount);
     }
 }

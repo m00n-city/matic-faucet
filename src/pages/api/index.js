@@ -5,6 +5,7 @@ import { verifyEthAddress } from "../../util";
 const CALLER_SECRET = process.env.CALLER_SECRET;
 const CONTRACT_ADDRESS = process.env.PUBLIC_CONTRACT_ADDRESS;
 const RPC_URL = process.env.RPC_URL;
+const WITHDRAW_AMOUNT = ethers.BigNumber.from(process.env.WITHDRAW_AMOUNT);
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
@@ -21,7 +22,7 @@ export default async function handler(req, res) {
 
       const faucet = new ethers.Contract(CONTRACT_ADDRESS, FaucetABI, wallet);
 
-      await faucet.withdraw(address);
+      await faucet.withdraw(address, WITHDRAW_AMOUNT);
 
       return res.status(200).json({ address });
     } catch (e) {

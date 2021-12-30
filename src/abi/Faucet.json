@@ -1,5 +1,5 @@
 [
   "constructor(address)",
   "function owner() view returns (address)",
-  "function withdraw(address)"
+  "function withdraw(address,uint256)"
 ]
