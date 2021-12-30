@@ -1,22 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
 
 * {
-  font-family: 'Inter', sans-serif !important;
+  font-family: "Inter", sans-serif !important;
 }
 
 @font-face {
   font-family: "Orbitron-SemiBold";
-  src: url("../fonts/Orbitron-SemiBold.ttf");  
+  src: url("/fonts/Orbitron-SemiBold.ttf");
 }
-
 
 body {
   height: fit-content !important;
-  font-weight: 400;
-  font-family: "Roboto", sans-serif;
-  line-height: 1.55;
-  font-size: 18px;
-  background: url(../../public/images/moon_texture.jpg) top repeat-y;
+  font-weight: 400 !important;
+  font-family: "Roboto", sans-serif !important;
+  line-height: 1.55 !important;
+  font-size: 18px !important;
+  background: url("/images/moon_texture.jpg") top repeat-y !important;
 }
 
 .Orbitron {
@@ -50,7 +49,7 @@ body {
   margin-top: 100px;
 }
 
-.dev_by{
+.dev_by {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -61,12 +60,11 @@ body {
   font-weight: bolder;
 }
 
-
 .dev_by > div {
-  align-items: center;  
+  align-items: center;
   display: flex;
 }
 
-.dev_by > div > a{
+.dev_by > div > a {
   padding: 0 24px;
 }
