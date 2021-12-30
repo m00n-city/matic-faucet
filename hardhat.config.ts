@@ -47,12 +47,12 @@ const config: HardhatUserConfig = {
       accounts,
     },
     polygon: {
-      url: process.env.RPC_URL,
+      url: `https://rpc-mainnet.maticvigil.com/v1/${process.env.RPC_KEY}`,
       accounts,
       chainId: 137,
     },
     "polygon-mumbai": {
-      url: process.env.RPC_TESTNET_URL,
+      url: `https://rpc-mumbai.maticvigil.com/v1/${process.env.RPC_KEY}`,
       accounts,
       chainId: 80001,
     },
