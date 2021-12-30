@@ -1,8 +1,10 @@
 import "dotenv/config";
-import { HardhatUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-etherscan";
+import "hardhat-abi-exporter";
+
+import { HardhatUserConfig } from "hardhat/types";
 import { task } from "hardhat/config";
 import { Wallet } from "ethers";
 
@@ -59,6 +61,14 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+  abiExporter: {
+    path: "./src/abi",
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    spacing: 2,
+    pretty: true,
   },
 };
 

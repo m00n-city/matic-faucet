@@ -1,4 +1,4 @@
-import Faucet from "../../../artifacts/contracts/Faucet.sol/Faucet.json";
+import Faucet from "../../abi/Faucet.json";
 import { ethers } from "ethers";
 import { verifyEthAddress } from "../../util";
 
