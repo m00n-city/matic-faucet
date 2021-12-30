@@ -1,4 +1,4 @@
-import Faucet from "../../abi/Faucet.json";
+import FaucetABI from "../../abi/Faucet.json";
 import { ethers } from "ethers";
 import { verifyEthAddress } from "../../util";
 
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       const provider = new ethers.getDefaultProvider(RPC_URL);
       const wallet = new ethers.Wallet(CALLER_SECRET, provider);
 
-      const faucet = new ethers.Contract(CONTRACT_ADDRESS, Faucet.abi, wallet);
+      const faucet = new ethers.Contract(CONTRACT_ADDRESS, FaucetABI, wallet);
 
       await faucet.withdraw(address);
 
