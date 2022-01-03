@@ -15,7 +15,7 @@ function Home(): React.ReactNode {
 
   const getContractBalance = async () => {
     try {
-      const { data } = await axios.get("/api");
+      const { data } = await axios.get("/api/balance");
       const { balance } = data;
       const formattedBalance = (parseInt(balance) / Math.pow(10, 18)).toFixed(2);
       setContractBalance(formattedBalance);
@@ -36,7 +36,7 @@ function Home(): React.ReactNode {
         setError("You can make only 1 request in a day. Please try again later.");
         return;
       }
-      await axios.post("/api", { address: value });
+      await axios.post("/api/withdraw", { address: value });
       const recordCreated = await createRecord(value);
 
       if (!recordCreated) {
