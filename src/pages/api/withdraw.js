@@ -30,4 +30,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Transaction failed." });
     }
   }
+
+  return res.status(404).send("Not found");
 }
