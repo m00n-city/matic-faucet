@@ -1,13 +1,14 @@
 import FaucetABI from "../../abi/Faucet.json";
 import { ethers } from "ethers";
 import { verifyEthAddress } from "../../util";
+import { withHCaptcha } from "next-hcaptcha";
 
 const CALLER_SECRET = process.env.CALLER_SECRET;
 const CONTRACT_ADDRESS = process.env.PUBLIC_CONTRACT_ADDRESS;
 const RPC_URL = process.env.RPC_URL;
 const WITHDRAW_AMOUNT = ethers.BigNumber.from(process.env.WITHDRAW_AMOUNT);
 
-export default async function handler(req, res) {
+export default withHCaptcha(async (req, res) => {
   if (req.method === "POST") {
     try {
       const { address } = req.body;
@@ -32,4 +33,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(404).send("Not found");
-}
+});
