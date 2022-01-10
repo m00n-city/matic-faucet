@@ -1,13 +1,14 @@
 import FaucetABI from "../../abi/Faucet.json";
 import { ethers } from "ethers";
 import { verifyEthAddress } from "../../util";
+import { withHCaptcha } from "next-hcaptcha";
 
 const CALLER_SECRET = process.env.CALLER_SECRET;
 const CONTRACT_ADDRESS = process.env.PUBLIC_CONTRACT_ADDRESS;
 const RPC_URL = process.env.RPC_URL;
 const WITHDRAW_AMOUNT = ethers.BigNumber.from(process.env.WITHDRAW_AMOUNT);
 
-export default async function handler(req, res) {
+export default withHCaptcha(async (req, res) => {
   if (req.method === "POST") {
     try {
       const { address } = req.body;
@@ -31,14 +32,5 @@ export default async function handler(req, res) {
     }
   }
 
-  if (req.method === "GET") {
-    try {
-      const provider = new ethers.getDefaultProvider(RPC_URL);
-      const contractBalance = await provider.getBalance(CONTRACT_ADDRESS);
-      return res.status(200).json({ balance: contractBalance.toString() });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: "Internal server error." });
-    }
-  }
-}
+  return res.status(404).send("Not found");
+});

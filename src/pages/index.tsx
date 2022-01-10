@@ -1,8 +1,11 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, useRef } from "react";
 import { Button, Container, Form, Input, Message, Placeholder } from "semantic-ui-react";
 import { verifyEthAddress } from "../util";
 import axios from "axios";
 import { createRecord, validateRequest } from "../lib/db";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+
+const HCAPTCHA_SITE_KEY = process.env.HCAPTCHA_SITE_KEY || "";
 
 function Home(): React.ReactNode {
   const [value, setValue] = useState("");
@@ -12,10 +15,11 @@ function Home(): React.ReactNode {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const captchaRef = useRef<any>(null);
 
   const getContractBalance = async () => {
     try {
-      const { data } = await axios.get("/api");
+      const { data } = await axios.get("/api/balance");
       const { balance } = data;
       const formattedBalance = (parseInt(balance) / Math.pow(10, 18)).toFixed(2);
       setContractBalance(formattedBalance);
@@ -25,7 +29,7 @@ function Home(): React.ReactNode {
     }
   };
 
-  const requestFunds = async () => {
+  const requestFunds = async (token: string) => {
     setSuccess(false);
     setError("");
     setLoading(true);
@@ -36,12 +40,12 @@ function Home(): React.ReactNode {
         setError("You can make only 1 request in a day. Please try again later.");
         return;
       }
-      await axios.post("/api", { address: value });
+      await axios.post("/api/withdraw", { address: value });
       const recordCreated = await createRecord(value);
 
       if (!recordCreated) {
         // TODO: Creating the record failed, probably report this
-        console.log("Couldnt create the record");
+        console.log("Couldn't create the record");
       }
 
       setSuccess(true);
@@ -59,7 +63,16 @@ function Home(): React.ReactNode {
       return setError("Invalid wallet address.");
     }
 
-    await requestFunds();
+    captchaRef.current.execute();
+  };
+
+  const onVerify = (token: string) => {
+    if (!token) {
+      return;
+    }
+
+    captchaRef.current.resetCaptcha();
+    return requestFunds(token);
   };
 
   useEffect(() => {
@@ -84,6 +97,7 @@ function Home(): React.ReactNode {
     <Container>
       <div className="card">
         <Form success={success} error={!!error} onSubmit={onSubmit}>
+          <HCaptcha size="invisible" sitekey={HCAPTCHA_SITE_KEY} onVerify={onVerify} ref={captchaRef} />
           <div className="title">
             <span className="Orbitron">Polygon Faucet</span>
           </div>
@@ -93,7 +107,7 @@ function Home(): React.ReactNode {
           </Form.Field>
           <Message error content={error} />
           {success && <Message success content="0.005 $MATIC will soon be transferred to your wallet." />}
-          <Button style={{ marginBottom: 50 }} loading={loading} primary className="Orbitron font-18">
+          <Button type="submit" style={{ marginBottom: 50 }} loading={loading} primary className="Orbitron font-18">
             Request $MATIC
           </Button>
         </Form>
@@ -105,7 +119,7 @@ function Home(): React.ReactNode {
           <div>
             <a href="https://m00n.city" target="_blank">
               <img src="./images/moon-city-logo3.png" />
-            </a>            
+            </a>
             /
             <a href="https://lca.m00n.city" target="_blank">
               <img src="./images/LCA_side_1.png" />
