@@ -15,7 +15,7 @@ function Home(): React.ReactNode {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const captchaRef = useRef<any>(null);
+  const captchaRef = useRef<HCaptcha>(null);
 
   const getContractBalance = async () => {
     try {
@@ -40,7 +40,7 @@ function Home(): React.ReactNode {
         setError("You can make only 1 request in a day. Please try again later.");
         return;
       }
-      await axios.post("/api/withdraw", { address: value });
+      await axios.post("/api/withdraw", { address: value, "h-captcha-response": token });
       const recordCreated = await createRecord(value);
 
       if (!recordCreated) {
@@ -63,7 +63,7 @@ function Home(): React.ReactNode {
       return setError("Invalid wallet address.");
     }
 
-    captchaRef.current.execute();
+    captchaRef.current?.execute();
   };
 
   const onVerify = (token: string) => {
@@ -71,7 +71,7 @@ function Home(): React.ReactNode {
       return;
     }
 
-    captchaRef.current.resetCaptcha();
+    captchaRef.current?.resetCaptcha();
     return requestFunds(token);
   };
 
