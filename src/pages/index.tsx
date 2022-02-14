@@ -2,13 +2,14 @@ import { FormEvent, useEffect, useState } from "react";
 import { Button, Container, Form, Input, Message, Placeholder } from "semantic-ui-react";
 import { verifyEthAddress } from "../util";
 import axios from "axios";
-import { createRecord, validateRequest } from "../lib/db";
+import { createRecord, createRecordIps, validateRequest, validateRequestIp } from "../lib/db";
 
 function Home(): React.ReactNode {
   const [value, setValue] = useState("");
   const [touched, setTouched] = useState(false);
   const [isValid, setIsValid] = useState<boolean>(false);
   const [contractBalance, setContractBalance] = useState<string>();
+  const [clientIp, setClientIp] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -16,9 +17,10 @@ function Home(): React.ReactNode {
   const getContractBalance = async () => {
     try {
       const { data } = await axios.get("/api");
-      const { balance } = data;
+      const { balance, ip } = data;
       const formattedBalance = (parseInt(balance) / Math.pow(10, 18)).toFixed(2);
       setContractBalance(formattedBalance);
+      setClientIp(ip);
     } catch (e) {
       console.log(e);
       setContractBalance("");
@@ -36,13 +38,29 @@ function Home(): React.ReactNode {
         setError("You can make only 1 request in a day. Please try again later.");
         return;
       }
+
+      const validIp = await validateRequestIp(clientIp);
+      if (!validIp) {
+        setLoading(false);
+        setError("You can make only 1 request in a day. Please try again later.");
+        return;
+      }
+
       await axios.post("/api", { address: value });
+      
       const recordCreated = await createRecord(value);
 
       if (!recordCreated) {
         // TODO: Creating the record failed, probably report this
         console.log("Couldnt create the record");
-      }
+      }     
+      
+      const recordCreatedIp = await createRecordIps(clientIp);
+
+      if (!recordCreatedIp) {
+        // TODO: Creating the record failed, probably report this
+        console.log("Couldnt create the record");
+      }      
 
       setSuccess(true);
     } catch (e: any) {

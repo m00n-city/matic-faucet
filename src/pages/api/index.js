@@ -34,7 +34,8 @@ export default async function handler(req, res) {
     try {
       const provider = new ethers.getDefaultProvider(RPC_URL);
       const contractBalance = await provider.getBalance(CONTRACT_ADDRESS);
-      return res.status(200).json({ balance: contractBalance.toString() });
+      const ip = req.headers["x-real-ip"] || req.connection.remoteAddress || "";
+      return res.status(200).json({ balance: contractBalance.toString(), ip });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: "Internal server error." });
