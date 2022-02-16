@@ -2,18 +2,25 @@ import { getDatabase, ref, get, set, child } from "firebase/database";
 
 const db = getDatabase();
 
-export const validateRequest = async (address: string): Promise<boolean> => {
-  try {
-    const addrRef = ref(db, "addresses/");
-    const currentTime = Date.now();
+export const validateWithdrawal = async (address: string, ip: string): Promise<boolean> => {
+  const addressRes = await validateInterval(`addresses/${address}`);
+  const IpsRes = await validateInterval(`ips/${ip}`);
+  return addressRes && IpsRes;
+};
 
-    const snapshot = await get(child(addrRef, address));
+export const createWithdrawalRecord = async (address: string, ip: string): Promise<boolean> => {
+  const addressRes = await createRecord(`addresses/${address}`);
+  const IpsRes = await createRecord(`ips/${ip}`);
+  return addressRes && IpsRes;
+};
+
+export const validateInterval = async (value: string, interval = 8.64e7): Promise<boolean> => {
+  try {
+    const currentTime = Date.now();
+    const snapshot = await get(ref(db, value));
 
     if (snapshot.exists()) {
-      // Previous record exists
-
-      // Validate request
-      if (currentTime - snapshot.val() < 8.64e7) {
+      if (currentTime - snapshot.val() < interval) {
         // Cooldown not over yet
         return false;
       } else {
@@ -21,7 +28,6 @@ export const validateRequest = async (address: string): Promise<boolean> => {
         return true;
       }
     } else {
-      // Allow withdrawal
       return true;
     }
   } catch (error) {
@@ -30,11 +36,11 @@ export const validateRequest = async (address: string): Promise<boolean> => {
   }
 };
 
-export const createRecord = async (address: string): Promise<boolean> => {
+export const createRecord = async (value: string): Promise<boolean> => {
   try {
     const currentTime = Date.now();
-    const addrRef = ref(db, "addresses/" + address);
-    await set(addrRef, currentTime);
+    const valRef = ref(db, value);
+    await set(valRef, currentTime);
     return true;
   } catch (error) {
     console.log(error);

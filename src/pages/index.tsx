@@ -2,13 +2,12 @@ import { FormEvent, useEffect, useState, useRef } from "react";
 import { Button, Container, Form, Input, Message, Placeholder } from "semantic-ui-react";
 import { verifyEthAddress } from "../util";
 import axios from "axios";
-import { createRecord, validateRequest } from "../lib/db";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 const HCAPTCHA_SITE_KEY = process.env.HCAPTCHA_SITE_KEY || "";
 
 function Home(): React.ReactNode {
-  const [value, setValue] = useState("");
+  const [address, setAddress] = useState("");
   const [touched, setTouched] = useState(false);
   const [isValid, setIsValid] = useState<boolean>(false);
   const [contractBalance, setContractBalance] = useState<string>();
@@ -34,21 +33,12 @@ function Home(): React.ReactNode {
     setError("");
     setLoading(true);
     try {
-      const validity = await validateRequest(value);
-      if (!validity) {
-        setLoading(false);
-        setError("You can make only 1 request in a day. Please try again later.");
-        return;
+      const withdrawRes = await axios.post("/api/withdraw", { address, "h-captcha-response": token });
+      if (withdrawRes.data.error) {
+        setError(withdrawRes.data.error);
+      } else {
+        setSuccess(true);
       }
-      await axios.post("/api/withdraw", { address: value, "h-captcha-response": token });
-      const recordCreated = await createRecord(value);
-
-      if (!recordCreated) {
-        // TODO: Creating the record failed, probably report this
-        console.log("Couldn't create the record");
-      }
-
-      setSuccess(true);
     } catch (e: any) {
       console.log(e);
       setError(e.message);
@@ -76,18 +66,18 @@ function Home(): React.ReactNode {
   };
 
   useEffect(() => {
-    if (value) {
+    if (address) {
       setTouched(true);
     }
 
-    setIsValid(verifyEthAddress(value));
-  }, [value]);
+    setIsValid(verifyEthAddress(address));
+  }, [address]);
 
   useEffect(() => {
     if (!isValid) {
       setError("");
     }
-  }, [value]);
+  }, [address]);
 
   useEffect(() => {
     getContractBalance();
@@ -103,7 +93,7 @@ function Home(): React.ReactNode {
           </div>
           <Form.Field error={touched && !isValid}>
             <span className="label">Your Polygon wallet address</span>
-            <Input disabled={loading} type="text" value={value} onChange={(e) => setValue(e.target.value)} />
+            <Input disabled={loading} type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
           </Form.Field>
           <Message error content={error} />
           {success && <Message success content="0.005 $MATIC will soon be transferred to your wallet." />}
