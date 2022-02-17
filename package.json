@@ -46,6 +46,7 @@
     "next-hcaptcha": "^1.4.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "request-ip": "^2.1.3",
     "semantic-ui-react": "^2.0.4"
   }
 }

@@ -2,6 +2,7 @@ import FaucetABI from "../../abi/Faucet.json";
 import { ethers } from "ethers";
 import { verifyEthAddress } from "../../util";
 import { withHCaptcha } from "next-hcaptcha";
+import requestIp from "request-ip";
 import { createWithdrawalRecord, validateWithdrawal } from "../../lib/db";
 
 const CALLER_SECRET = process.env.CALLER_SECRET;
@@ -20,12 +21,14 @@ export default withHCaptcha(async (req, res) => {
         return res.status(400).json({ error: "Invalid wallet address." });
       }
 
-      const validity = await validateWithdrawal(address);
+      const ip = requestIp.getClientIp(req);
+
+      const validity = await validateWithdrawal(address, ip);
       if (!validity) {
         return res.status(500).json({ error: "You can make only 1 request in a day. Please try again later." });
       }
 
-      const recordCreated = await createAddrRecord(address);
+      const recordCreated = await createWithdrawalRecord(address, ip);
       if (!recordCreated) {
         return res.status(500).json({ error: "Couldn't create the record" });
       }
