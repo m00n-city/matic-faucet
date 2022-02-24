@@ -18,7 +18,7 @@ export default withHCaptcha(async (req, res) => {
       if (!isAddressValid) {
         return res.status(400).json({ error: "Invalid wallet address." });
       }
-      const provider = new ethers.getDefaultProvider(RPC_URL);
+      const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
       const wallet = new ethers.Wallet(CALLER_SECRET, provider);
 
       const faucet = new ethers.Contract(CONTRACT_ADDRESS, FaucetABI, wallet);
