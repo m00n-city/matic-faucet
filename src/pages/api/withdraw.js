@@ -4,7 +4,6 @@ import { verifyEthAddress } from "../../util";
 import { withHCaptcha } from "next-hcaptcha";
 
 const CALLER_SECRET = process.env.CALLER_SECRET;
-const CONTRACT_ADDRESS = process.env.PUBLIC_CONTRACT_ADDRESS;
 const RPC_URL = process.env.RPC_URL;
 const WITHDRAW_AMOUNT = ethers.BigNumber.from(process.env.WITHDRAW_AMOUNT);
 
@@ -21,9 +20,14 @@ export default withHCaptcha(async (req, res) => {
       const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
       const wallet = new ethers.Wallet(CALLER_SECRET, provider);
 
-      const faucet = new ethers.Contract(CONTRACT_ADDRESS, FaucetABI, wallet);
+      let gasPrice = await wallet.provider.getGasPrice();
+      gasPrice = gasPrice.mul(2);
 
-      await faucet.withdraw(address, WITHDRAW_AMOUNT);
+      const tx = await wallet.sendTransaction({ to: address, value: WITHDRAW_AMOUNT, gasPrice });
+      console.log(tx.hash);
+
+      // const txResp = await tx.wait();
+      // console.log(txResp);
 
       return res.status(200).json({ address });
     } catch (e) {
